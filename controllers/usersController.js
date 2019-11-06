@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 exports.validateSignup = () => {};
 
 exports.signup = async (req, res) => {
+  //should be changed to use Transaction, cus "where("email", "==", email).get();" should be read before write
   try {
     const { email, name, password } = req.body;
     let snapshot = await UsersRef.where("email", "==", email).get();
@@ -29,11 +30,11 @@ exports.signup = async (req, res) => {
       await batch.commit();
       return res.json("signup success");
     } else {
-      res.json("email has already been used");
+      return res.json("email has already been used");
     }
   } catch (error) {
     console.log("some error happend in signup controller", error);
-    res.json("some error happend");
+    return res.status(400).send();
   }
 };
 
@@ -44,17 +45,22 @@ exports.signin = async (req, res) => {
       .limit(1)
       .get();
     if (snapshot.empty) {
-      res.json("user doesn't exist!");
+      return res.json("user doesn't exist!");
     } else {
       let userLoginInfo = snapshot.docs[0].data();
       const isMatch = await bcrypt.compare(password, userLoginInfo.hash);
+      if (!isMatch) {
+        return res.json("Unable to login");
+      }
+
       //if password is matched => create JWT token
-      const result = isMatch ? "login success" : "password is wrong";
-      res.json(result);
+      const userSnapshot = await UsersRef.where("email", "==", email).get();
+      const user = userSnapshot.docs[0].data();
+      return res.json(user);
     }
   } catch (error) {
     console.log("some error happend in signin controller", error);
-    res.json("some error happend in signin controller");
+    return res.status(400).send();
   }
 };
 
