@@ -8,6 +8,7 @@ const usersRoutes = require("./routes/usersRoutes");
 require("dotenv").config();
 
 const server = express();
+
 server.use(cors());
 server.use(morgan("short"));
 server.use(express.json());
