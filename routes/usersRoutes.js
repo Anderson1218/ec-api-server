@@ -13,8 +13,8 @@ router.post("/token", usersController.signin);
 router.get("/me", auth, usersController.getUserProfile);
 
 //sign out
-router.delete("/session", (req, res) => {
-  res.json("sign out api");
-});
+// router.delete("/session", (req, res) => {
+//   res.json("sign out api");
+// });
 
 module.exports = router;
