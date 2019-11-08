@@ -3,14 +3,16 @@ const LoginInfosRef = require("../models/LoginInfos");
 const db = require("../firebase/firebase-admin");
 const bcrypt = require("bcryptjs");
 const jwtUtils = require("../utils/jwt-utils");
-const md5 = require("md5"); //for generating random photo for user
 
 exports.validateSignup = () => {};
 
 exports.signup = async (req, res) => {
   //#should be changed to use Transaction, cus "where("email", "==", email).get();" should be read before write
   try {
-    const { email, name, password } = req.body;
+    const { email, name, password, photoURL } = req.body;
+    if (!email || !password || !name) {
+      throw new Error("email , name and password shouldn't be empty");
+    }
     let snapshot = await UsersRef.where("email", "==", email).get();
     if (snapshot.empty) {
       const batch = db.batch();
@@ -20,7 +22,7 @@ exports.signup = async (req, res) => {
         email,
         name,
         createdAt,
-        photoURL: `http://gravatar.com/avatar/${md5(email)}?d=identicon`
+        photoURL
       };
       let newUserLoginInfo = {
         email,
@@ -34,7 +36,7 @@ exports.signup = async (req, res) => {
       //should return token and user profile to user
       return res.json("signup success");
     } else {
-      return res.json("email has already been used");
+      return res.status(400).json("email has already been used");
     }
   } catch (error) {
     console.log("error in signup controller", error);
@@ -45,11 +47,14 @@ exports.signup = async (req, res) => {
 exports.signin = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      throw new Error("email and password shouldn't be empty");
+    }
     let snapshot = await LoginInfosRef.where("email", "==", email)
       .limit(1)
       .get();
     if (snapshot.empty) {
-      return res.json("user doesn't exist!");
+      return res.status(400).json("user doesn't exist!");
     } else {
       let userLoginInfo = snapshot.docs[0].data();
       const isMatch = await bcrypt.compare(password, userLoginInfo.hash);
@@ -74,7 +79,7 @@ exports.getUserProfile = async (req, res) => {
     if (user) {
       res.json(user);
     } else {
-      res.json("user doesn't exist");
+      res.status(400).json("user doesn't exist");
     }
   } catch (error) {
     console.log("error in getUserProfile controller", error);
