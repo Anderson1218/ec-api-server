@@ -26,6 +26,7 @@ exports.signup = async (req, res) => {
       throw new Error("email has already been used");
     }
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send(error.message);
   }
 };
@@ -53,6 +54,7 @@ exports.signin = async (req, res) => {
       return res.json({ user: userProfile, token });
     }
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send(error.message);
   }
 };
@@ -66,6 +68,7 @@ exports.getUserProfile = async (req, res) => {
       throw new Error("unable to get the profile");
     }
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send(error.message);
   }
 };

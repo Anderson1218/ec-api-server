@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const port = process.env.PORT || 8080;
 const morgan = require("morgan");
+const helmet = require("helmet");
 const collectionsRoutes = require("./routes/collectionsRoutes");
 const usersRoutes = require("./routes/usersRoutes");
 /* Loads all variables from .env file to "process.env" */
@@ -9,6 +10,7 @@ require("dotenv").config();
 
 const server = express();
 
+server.use(helmet());
 server.use(cors());
 server.use(morgan("short"));
 server.use(express.json());
