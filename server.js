@@ -16,8 +16,8 @@ server.use(helmet());
 server.use(cors());
 server.use(morgan("short"));
 server.use(express.json());
-server.use("/api/users", usersRoutes);
-server.use("/api/collections", collectionsRoutes);
+//server.use("/api/users", usersRoutes);
+server.use("/collections", collectionsRoutes);
 
 server.listen(port, err => {
   if (err) throw err;
